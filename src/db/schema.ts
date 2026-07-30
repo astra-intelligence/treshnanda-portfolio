@@ -1,25 +1,26 @@
-import { pgTable, serial, text, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
+import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-export const projects = pgTable("projects", {
-  id: serial("id").primaryKey(),
+export const projects = sqliteTable("projects", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(),
-  content: text("content"), 
+  content: text("content"),
   imageUrl: text("image_url"),
-  images: jsonb("images").$type<string[]>().default([]),
+  images: text("images", { mode: "json" }).$type<string[]>().default([]),
   link: text("link"),
   github: text("github"),
-  tags: text("tags").array(),
-  isFeatured: boolean("is_featured").default(false),
+  tags: text("tags", { mode: "json" }).$type<string[]>().default([]),
+  isFeatured: integer("is_featured", { mode: "boolean" }).default(false),
   status: text("status").default("live"), // live, archived, draft
-  metadata: jsonb("metadata").default({}),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: text("metadata", { mode: "json" }).default({}),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
 });
 
-export const profile = pgTable("profile", {
-  id: serial("id").primaryKey(),
+export const profile = sqliteTable("profile", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   role: text("role").notNull(),
   bio: text("bio").notNull(),
@@ -27,7 +28,7 @@ export const profile = pgTable("profile", {
   heroHeadline: text("hero_headline"),
   heroSubheadline: text("hero_subheadline"),
   contactEmail: text("contact_email"),
-  socials: jsonb("socials").$type<{ github?: string, linkedin?: string, twitter?: string, whatsapp?: string }>().default({
+  socials: text("socials", { mode: "json" }).$type<{ github?: string, linkedin?: string, twitter?: string, whatsapp?: string }>().default({
     github: "",
     linkedin: "",
     twitter: "",
@@ -35,14 +36,14 @@ export const profile = pgTable("profile", {
   }),
   location: text("location").default("Bali, Indonesia"),
   resumeUrl: text("resume_url"),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
 });
 
-export const settings = pgTable("settings", {
-  id: serial("id").primaryKey(),
+export const settings = sqliteTable("settings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   key: text("key").unique().notNull(),
   value: text("value").notNull(),
   group: text("group").default("general"), // general, seo, technical
   description: text("description"),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
 });

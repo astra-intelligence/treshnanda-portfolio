@@ -1,8 +1,9 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/treshnanda_portfolio";
+// SQLite (libsql) — a single file DB. Override with DATABASE_URL=file:/abs/path.db
+const url = process.env.DATABASE_URL || "file:./data/portfolio.db";
 
-const client = postgres(connectionString);
+const client = createClient({ url });
 export const db = drizzle(client, { schema });
