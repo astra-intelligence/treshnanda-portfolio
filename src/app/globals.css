@@ -2,226 +2,215 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
 
-  --color-system-lime: #CCFF00;
-  --color-system-lime-dark: #AACC00;
+  --color-ink: #111111;
+  --color-ink-soft: #1a1a1a;
+  --color-ink-muted: #6b6b6b;
+  --color-ink-faint: #9a9a9a;
+  --color-ink-line: #e6e6e6;
+  --color-paper: #ffffff;
+  --color-paper-soft: #f7f7f7;
 
-  --animate-marquee: marquee 30s linear infinite;
-
-  /* Motion system — custom easing curves (built-in CSS easings are too weak). */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
 :root {
-  /* The site is dark-first: the page canvas must match, or Chrome paints
-     white into not-yet-rendered regions during fast scrolling (white flash).
-     Light routes (admin) paint their own full-height backgrounds. */
-  --background: #0a0a0a;
-  --foreground: #f4f2ec;
-  --emerald-primary: #CCFF00;
-  --forest-deep: #CCFF00;
-  --accent-cream: #f9f7f2;
-  --editorial-ink: oklch(0.135 0.006 95);
-  --editorial-ink-raised: oklch(0.18 0.006 95);
-  --editorial-paper: oklch(0.955 0.014 88);
-  --editorial-paper-muted: oklch(0.905 0.012 88);
-  --editorial-muted: oklch(0.72 0.012 88);
+  --background: #ffffff;
+  --foreground: #111111;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
   }
+
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden;
+    @apply bg-paper text-ink antialiased overflow-x-hidden;
     font-synthesis: none;
   }
 
   ::selection {
-    background: #CCFF00;
-    color: #0A0A0A;
+    background: #111111;
+    color: #ffffff;
   }
 }
 
 @layer components {
-  .editorial-ink {
-    background: var(--editorial-ink);
-    color: var(--editorial-paper);
-  }
-
-  .editorial-paper {
-    background: var(--editorial-paper);
-  }
-
-  .editorial-grid {
+  .site-shell {
     width: 100%;
-    max-width: 80rem;
+    max-width: 76rem;
     margin-inline: auto;
-    padding-inline: 1.5rem;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 0.75rem;
+    padding-inline: 1.25rem;
   }
 
-  .editorial-kicker,
-  .editorial-meta {
+  @media (min-width: 48rem) {
+    .site-shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .ink-kicker {
     font-size: 0.6875rem;
     line-height: 1.35;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: #9a9a9a;
     white-space: nowrap;
   }
 
-  .editorial-meta {
-    color: color-mix(in oklch, var(--editorial-paper) 42%, transparent);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .editorial-display {
-    font-size: clamp(3rem, 7vw, 7.25rem);
-    line-height: 0.86;
-    font-weight: 900;
-    letter-spacing: -0.065em;
+  /* Section headings — "Shipped, and still running.", "Where I've worked." — one line, ~46px at 1440. */
+  .ink-display {
+    font-size: clamp(2rem, 3.35vw, 2.9rem);
+    line-height: 1.04;
+    font-weight: 600;
+    letter-spacing: -0.032em;
     text-wrap: balance;
+    color: var(--color-ink);
+  }
+
+  /* Hero display — big editorial statement; bio + CTAs sit beside it. */
+  .ink-hero {
+    font-size: clamp(2.5rem, 6.6vw, 6rem);
+    line-height: 0.98;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    color: var(--color-ink);
+  }
+
+  .ink-button {
+    @apply inline-flex items-center justify-center rounded-full bg-ink px-7 py-[0.85rem] text-[14px] font-medium text-white;
+    transition:
+      transform 160ms var(--ease-out-quint),
+      background-color 200ms var(--ease-out-quint),
+      color 200ms var(--ease-out-quint);
+  }
+
+  .ink-button:active {
+    transform: scale(0.96);
+  }
+
+  .ink-button-inverse {
+    @apply inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-medium text-ink;
+    transition:
+      transform 160ms var(--ease-out-quint),
+      background-color 200ms var(--ease-out-quint);
+  }
+
+  .ink-button-inverse:active {
+    transform: scale(0.96);
+  }
+
+  .ink-link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .ink-link-arrow svg,
+  .ink-link-arrow .arrow-glyph {
+    transition: transform 220ms var(--ease-out-quint);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-link-arrow:hover svg {
+      transform: translate(2px, -2px);
+    }
+    .ink-link-arrow:hover .arrow-glyph {
+      transform: translateY(3px);
+    }
+  }
+
+  /* Button label slide — the resting label glides up and out while its twin
+     rises in from below. Both spans stay in the DOM (clone is aria-hidden). */
+  .btn-label {
+    position: relative;
+    display: inline-flex;
+    overflow: hidden;
+  }
+
+  .btn-label > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 340ms var(--ease-out-quint);
+  }
+
+  .btn-label > span:last-child {
+    position: absolute;
+    inset: 0;
+    transform: translateY(115%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-button:hover .btn-label > span:first-child,
+    .ink-button-inverse:hover .btn-label > span:first-child {
+      transform: translateY(-115%);
+    }
+    .ink-button:hover .btn-label > span:last-child,
+    .ink-button-inverse:hover .btn-label > span:last-child {
+      transform: translateY(0);
+    }
   }
 }
 
-@media (min-width: 48rem) {
-  .editorial-grid {
-    padding-inline: 2rem;
-    column-gap: 1.25rem;
-  }
-}
-
-/* Ghost folio numerals: outlined, unfilled chapter numbers (swiss page folio). */
-.folio-outline {
-  color: transparent;
-  -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: rgba(244, 242, 236, 0.22);
-}
-
-/* Ink variant for paper surfaces. Fill color is left to utilities so
-   `text-transparent` + `group-hover:text-system-lime` can ink it in. */
-.folio-outline-ink {
-  -webkit-text-stroke-width: 1.5px;
-  -webkit-text-stroke-color: rgba(17, 17, 15, 0.25);
-}
-
-.glass-nav {
-  @apply bg-white/70 backdrop-blur-xl border-b border-zinc-200/50 sticky top-0 z-50;
-}
-
-.btn-primary {
-  @apply bg-[var(--forest-deep)] text-white px-8 py-4 font-bold rounded-xl hover:bg-black transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 shadow-lg shadow-emerald-900/10;
-}
-
-.btn-secondary {
-  @apply bg-white text-black border border-zinc-200 px-8 py-4 font-bold rounded-xl hover:bg-zinc-50 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 shadow-sm;
-}
-
-.project-card {
-  @apply bg-white rounded-[2rem] border border-zinc-200/60 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden;
-}
-
-/* Keep the browser's scroll affordance, but make it visually compatible with the publication shell. */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #CCFF00 var(--editorial-ink);
-}
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--editorial-ink);
-}
-::-webkit-scrollbar-thumb {
-  background: #CCFF00;
-  border: 3px solid var(--editorial-ink);
-}
-
-/* ----------------------------------------------------------------------------
-   Motion polish
-   ------------------------------------------------------------------------- */
-
-/* Press feedback: every pressable element should feel like it heard the user.
-   Gated to fine pointers so taps on touch devices don't get a double cue. */
+/* Hovering one row quiets its siblings so the row under the cursor carries
+   the focus. Pointer-only; touch never sees a half-dimmed list. */
 @media (hover: hover) and (pointer: fine) {
-  .press {
-    transition: transform 160ms var(--ease-out-quint);
-    will-change: transform;
+  .dim-siblings > li {
+    transition: opacity 260ms var(--ease-out-quint);
   }
-  .press:active {
-    transform: scale(0.97);
+  .dim-siblings:hover > li {
+    opacity: 0.45;
   }
-}
-
-/* Shine sweep: a soft highlight glides across a button on hover. The ::after
-   is pointer-events-none and only transform animates, so it stays cheap.
-   Best on dark / coloured buttons (the highlight is translucent white). */
-.shine {
-  position: relative;
-  overflow: hidden;
-}
-.shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 48%, transparent 66%);
-  transform: translateX(-130%);
-  pointer-events: none;
-}
-@media (hover: hover) and (pointer: fine) {
-  .shine:hover::after {
-    transform: translateX(130%);
-    transition: transform 750ms var(--ease-out-quint);
+  .dim-siblings:hover > li:hover {
+    opacity: 1;
   }
 }
 
-/* Animated underline that draws left→right on hover. Background-size trick so
-   only background-size animates (cheap), and it survives multi-line wraps. */
+/* Press feedback for any .press control — applies on touch too; :active is
+   the one hover-family state touch devices get right. */
+.press {
+  transition: transform 160ms var(--ease-out-quint);
+}
+.press:active {
+  transform: scale(0.96);
+}
+
 .link-underline {
   background-image: linear-gradient(currentColor, currentColor);
   background-position: 0 100%;
   background-repeat: no-repeat;
-  background-size: 0% 1.5px;
+  background-size: 0% 1px;
   transition: background-size 280ms var(--ease-out-quint);
 }
+
 @media (hover: hover) and (pointer: fine) {
   .link-underline:hover {
-    background-size: 100% 1.5px;
+    background-size: 100% 1px;
   }
 }
 
-/* GPU-accelerated film grain for the shader hero. Only transform/opacity
-   animate, so it stays off the layout/paint path. */
-.grain-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  animation: grain-shift 8s steps(6) infinite;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #111111 #f0f0f0;
 }
 
-@keyframes grain-shift {
-  0% { transform: translate(0, 0); }
-  16% { transform: translate(-3%, 2%); }
-  33% { transform: translate(2%, -3%); }
-  50% { transform: translate(-2%, 1%); }
-  66% { transform: translate(3%, 2%); }
-  83% { transform: translate(-1%, -2%); }
-  100% { transform: translate(0, 0); }
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #111111;
+  border: 3px solid #f0f0f0;
+  border-radius: 999px;
 }
 
-/* Reduced motion: keep meaning (opacity/color), drop movement.
-   Reduced ≠ none — gentle fades stay, transforms and loops go. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -234,16 +223,9 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .grain-overlay {
-    animation: none;
-  }
-  .motion-only {
-    display: none !important;
-  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  header,
   .backdrop-blur-xl,
   .backdrop-blur-2xl {
     backdrop-filter: none !important;

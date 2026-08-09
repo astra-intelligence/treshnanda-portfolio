@@ -84,6 +84,9 @@ importers:
       tailwindcss:
         specifier: 4.2.4
         version: 4.2.4
+      tsx:
+        specifier: 4.23.11
+        version: 4.23.11
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -2814,6 +2817,11 @@ packages:
 
   tsx@4.23.1:
     resolution: {integrity: sha512-GQHnkIfxyx1wYCOS/wonik5MVRZU9hi1TEZmzGZSCJB1y9YgoZ8H6itNE/u4suE+yLmOzuE4E5S4TZ/ZX2wcWQ==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
+  tsx@4.23.11:
+    resolution: {integrity: sha512-Ry2oTEUnhBdeEdWIztY8kf3/nBGnPnjMLVGL0YfdRXMORuPER5NlKmayqxtxRxwB1xBN+RivRaJfe7PM1rtiyw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -5556,6 +5564,12 @@ snapshots:
   tslib@2.8.1: {}
 
   tsx@4.23.1:
+    dependencies:
+      esbuild: 0.28.1
+    optionalDependencies:
+      fsevents: 2.3.3
+
+  tsx@4.23.11:
     dependencies:
       esbuild: 0.28.1
     optionalDependencies:

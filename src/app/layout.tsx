@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { cn } from "@/lib/cn";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", style: "italic" });
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Nanda | AI Solutions Architect",
-  description: "Building autonomous systems and high-fidelity architectures.",
+  title: "Treshnanda — AI systems & automation engineer",
+  description:
+    "AI systems and automation engineer in Bali. Agents, automations, and web systems that take repetitive work off your plate.",
 };
 
 export default function RootLayout({
@@ -23,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.variable, playfair.variable, "antialiased")}>
-        {children}
-      </body>
+      <body className={cn(inter.variable, "font-sans antialiased")}>{children}</body>
     </html>
   );
 }
