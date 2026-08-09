@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --test src/**/*.test.ts"
+    "test": "node --no-warnings --test src/**/*.test.ts",
+    "db:seed": "tsx --env-file=.env.local seed.ts",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
@@ -38,6 +40,7 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "4.2.4",
+    "tsx": "4.23.11",
     "typescript": "5.9.3"
   }
 }

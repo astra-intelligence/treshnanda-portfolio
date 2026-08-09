@@ -33,10 +33,10 @@ export const educationEntries: EducationEntry[] = [
   {
     id: "bangkit",
     school: "Bangkit Academy",
-    program: "Machine learning cohort",
+    program: "Machine Learning Cohort",
     start: "2024",
     end: "2024",
-    note: "Distinction / Top 10%",
+    note: "Distinction, top 10%",
   },
 ];
 
@@ -80,11 +80,10 @@ export const experienceEntries: ExperienceEntry[] = [
   },
   {
     id: "sic-data-club",
-    company: "Student Innovation Centre",
+    company: "Student Innovation Centre, Udayana University",
     role: "Data Club Leader",
     start: "2024",
     end: "2024",
-    location: "Udayana University",
     summary:
       "Led the data club: ran live sessions on data topics, wrote teaching materials, and mentored members through data-related lessons.",
     outcomes: ["Grew a recurring speaker series and teaching library for club members."],
