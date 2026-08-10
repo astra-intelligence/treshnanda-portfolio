@@ -84,11 +84,35 @@
   }
 
   .ink-button {
-    @apply inline-flex items-center justify-center rounded-full bg-ink px-7 py-[0.85rem] text-[14px] font-medium text-white;
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full bg-ink px-7 py-[0.85rem] text-[14px] font-medium text-white;
     transition:
       transform 160ms var(--ease-out-quint),
       background-color 200ms var(--ease-out-quint),
       color 200ms var(--ease-out-quint);
+  }
+
+  /* Glare shine — a soft light band sweeps across the ink pill once per hover.
+     Parked off-canvas at rest; the transition only runs toward the hover state,
+     so un-hovering resets instantly instead of sweeping backwards. */
+  .ink-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.22) 50%,
+      transparent 60%
+    );
+    transform: translateX(-150%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-button:hover::before {
+      transform: translateX(150%);
+      transition: transform 700ms var(--ease-out-quint);
+    }
   }
 
   .ink-button:active {
@@ -126,36 +150,46 @@
     }
   }
 
-  /* Button label slide — the resting label glides up and out while its twin
-     rises in from below. Both spans stay in the DOM (clone is aria-hidden). */
-  .btn-label {
-    position: relative;
-    display: inline-flex;
-    overflow: hidden;
-  }
+}
 
-  .btn-label > span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: transform 340ms var(--ease-out-quint);
-  }
+/* Shimmer hairline — a light band sweeping along an ink line. The loader's
+   honest "still working" indicator (no fake progress). */
+.shimmer-line {
+  background: linear-gradient(
+    90deg,
+    rgba(17, 17, 17, 0.15) 0%,
+    rgba(17, 17, 17, 0.15) 35%,
+    #111111 50%,
+    rgba(17, 17, 17, 0.15) 65%,
+    rgba(17, 17, 17, 0.15) 100%
+  );
+  background-size: 250% 100%;
+  animation: shimmer-line 1.6s linear infinite;
+}
 
-  .btn-label > span:last-child {
-    position: absolute;
-    inset: 0;
-    transform: translateY(115%);
+@keyframes shimmer-line {
+  from {
+    background-position: 125% 0;
   }
+  to {
+    background-position: -125% 0;
+  }
+}
 
-  @media (hover: hover) and (pointer: fine) {
-    .ink-button:hover .btn-label > span:first-child,
-    .ink-button-inverse:hover .btn-label > span:first-child {
-      transform: translateY(-115%);
-    }
-    .ink-button:hover .btn-label > span:last-child,
-    .ink-button-inverse:hover .btn-label > span:last-child {
-      transform: translateY(0);
-    }
+/* Focus-blur links — the hovered link stays sharp while its siblings soften
+   out of focus (depth-of-field). Pointer-only. */
+@media (hover: hover) and (pointer: fine) {
+  .focus-blur > .focus-blur-item {
+    /* Shorthand replaces Tailwind's transition-colors on the same element, so
+       color is carried here too. */
+    transition:
+      opacity 240ms var(--ease-out-quint),
+      filter 240ms var(--ease-out-quint),
+      color 200ms ease;
+  }
+  .focus-blur:hover > .focus-blur-item:not(:hover) {
+    opacity: 0.5;
+    filter: blur(1.5px);
   }
 }
 

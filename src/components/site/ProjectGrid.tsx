@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
 import ProjectCard from "@/components/site/ProjectCard";
 import InkButton from "@/components/site/InkButton";
 import { ease } from "@/lib/motion";
@@ -59,9 +58,8 @@ export default function ProjectGrid({
             <p className="text-base font-medium text-ink">
               Your project could be next.
             </p>
-            <InkButton href={ctaHref} external className="mt-6 gap-2">
+            <InkButton href={ctaHref} external className="mt-6">
               Start a project
-              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
             </InkButton>
           </motion.div>
         </div>

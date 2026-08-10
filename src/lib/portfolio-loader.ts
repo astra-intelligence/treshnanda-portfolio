@@ -1,4 +1,6 @@
-export const LOADER_MIN_MS = 1_150;
+/* Long enough for the full intro choreography: ring draw (0.9s), portrait
+   materialize, letter stagger (ends ~1.25s), one shimmer sweep. */
+export const LOADER_MIN_MS = 1_600;
 export const LOADER_MAX_MS = 2_500;
 
 export function getLoaderReleaseTime(startedAt: number, readyAt: number | null) {

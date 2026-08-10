@@ -46,7 +46,7 @@ export default function Hero({
           Kinetic reveal: each word rises + un-blurs in sequence (the one hero
           setpiece, plays once). Avatar pill scales in with the second line.
         */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-14">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-stretch md:gap-14">
         <motion.h1
           initial="hidden"
           animate={start ? "visible" : "hidden"}
@@ -91,11 +91,11 @@ export default function Hero({
           </span>
         </motion.h1>
 
-        {/* Bio + CTAs — right column beside the headline, bio stacked above
-            the actions, both bottom-aligned with the headline block. */}
-        {/* pt-[0.35em-ish] optically aligns the bio's cap height with the
-            headline's cap height (the h1's line box carries extra lead). */}
-        <div className="mt-2 flex flex-col gap-7 md:mt-0 md:max-w-[26rem] md:pt-3">
+        {/* Bio + CTAs — right column stretches to the headline's full height:
+            bio cap-aligned with the headline's cap at the top, CTAs sitting on
+            the headline's last baseline at the bottom, so the two columns read
+            as one balanced block instead of the right side floating high. */}
+        <div className="mt-2 flex flex-col gap-7 md:mt-0 md:max-w-[26rem] md:justify-between md:self-stretch md:pb-[0.4rem] md:pt-3">
           <motion.p
             {...fade(0.5)}
             className="max-w-[29rem] text-[16px] leading-[1.5] text-[#6e6e6e] text-pretty md:text-[17px]"

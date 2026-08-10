@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ChevronRight, ExternalLink, Layout, X } from "lucide-react";
 import SmoothScroll from "@/components/SmoothScroll";
+import InkButton from "@/components/site/InkButton";
 import Header from "@/components/site/Header";
 import Hero from "@/components/site/Hero";
 import ProjectGrid from "@/components/site/ProjectGrid";
@@ -14,11 +15,50 @@ import FooterWordmark from "@/components/site/FooterWordmark";
 import ScrollProgress from "@/components/site/ScrollProgress";
 import PortfolioLoader from "@/components/PortfolioLoader";
 import ChapterRail from "@/components/ChapterRail";
-import VelocityMarquee from "@/components/VelocityMarquee";
 import { ease, spring } from "@/lib/motion";
 import type { PortfolioProfile, PortfolioProject } from "@/lib/portfolio-types";
 
 const DEFAULT_CTA = "https://wa.me/6287852986638";
+
+function projectYear(project: PortfolioProject) {
+  const meta = project.metadata as { year?: string } | null;
+  if (meta?.year) return meta.year;
+  if (project.createdAt) return String(new Date(project.createdAt).getFullYear());
+  return "2026";
+}
+
+function projectRole(project: PortfolioProject) {
+  const meta = project.metadata as { role?: string } | null;
+  return meta?.role ?? "Design, engineering";
+}
+
+function projectStack(project: PortfolioProject) {
+  if (project.tags && project.tags.length > 0) return project.tags.slice(0, 3).join(" · ");
+  return project.category;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  live: "Live in production",
+  published: "Live in production",
+  development: "In development",
+  "in-progress": "In development",
+  archived: "Archived",
+};
+
+function projectStatus(project: PortfolioProject) {
+  const raw = project.status?.trim();
+  if (!raw) return project.link ? "Live in production" : "In development";
+  return STATUS_LABELS[raw.toLowerCase()] ?? raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+/** "https://manmade.fit/shop" -> "manmade.fit" for the visit button label. */
+function linkHost(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "site";
+  }
+}
 
 export default function HomePage({
   initialProjects,
@@ -39,29 +79,13 @@ export default function HomePage({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lastFocusedElement = useRef<HTMLElement | null>(null);
 
-  // Intro loader: plays once per session (first impression), never under
-  // reduced motion. sessionStorage is read through useSyncExternalStore so
-  // SSR renders "seen" (no loader markup) and hydration corrects it.
-  const introSeen = useSyncExternalStore(
-    () => () => {},
-    () => {
-      try {
-        return Boolean(sessionStorage.getItem("tn-intro"));
-      } catch {
-        return true;
-      }
-    },
-    () => true,
-  );
-  const showLoader = !reduce && !introSeen;
+  // Intro loader: plays on every full page load (reloads included), never
+  // under reduced motion. It doubles as the paint-settling curtain, so
+  // replaying on reload keeps the arrival consistent.
+  const showLoader = !reduce;
   const [released, setReleased] = useState(false);
 
   const handleLoaderRelease = useCallback(() => {
-    try {
-      sessionStorage.setItem("tn-intro", "1");
-    } catch {
-      /* private mode */
-    }
     setReleased(true);
   }, []);
 
@@ -81,6 +105,22 @@ export default function HomePage({
     setSelectedProject(null);
     window.requestAnimationFrame(() => lastFocusedElement.current?.focus());
   }, []);
+
+  // In-modal jump to another project: keeps the original trigger recorded so
+  // closing still restores focus to where the user entered from.
+  const goToProject = useCallback((project: PortfolioProject) => {
+    setCurrentImageIndex(0);
+    setImgDir(0);
+    setSelectedProject(project);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+  }, []);
+
+  const nextProject = useMemo(() => {
+    if (!selectedProject || initialProjects.length < 2) return null;
+    const idx = initialProjects.findIndex((p) => p.id === selectedProject.id);
+    if (idx === -1) return null;
+    return initialProjects[(idx + 1) % initialProjects.length];
+  }, [selectedProject, initialProjects]);
 
   useEffect(() => {
     if (!selectedProject) return;
@@ -213,7 +253,7 @@ export default function HomePage({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="project-modal-title"
-                className="relative flex h-[85vh] max-h-[680px] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl md:flex-row"
+                className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[2rem] bg-white shadow-2xl"
               >
                 <motion.button
                   ref={closeButtonRef}
@@ -222,12 +262,13 @@ export default function HomePage({
                   whileHover={reduce ? undefined : { scale: 1.08 }}
                   whileTap={reduce ? undefined : { scale: 0.92 }}
                   transition={spring.press}
-                  className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white"
+                  className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-ink shadow-sm backdrop-blur-sm"
                 >
                   <X className="h-5 w-5" />
                 </motion.button>
 
-                <div className="relative h-64 w-full overflow-hidden bg-paper-soft md:h-auto md:w-1/2">
+                {/* Cover image — full-bleed across the top of the card. */}
+                <div className="relative aspect-[16/9] max-h-[46vh] w-full shrink-0 overflow-hidden bg-paper-soft">
                   {allImages[currentImageIndex] ? (
                     <AnimatePresence initial={false} custom={imgDir}>
                       <motion.img
@@ -282,37 +323,67 @@ export default function HomePage({
                   )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 sm:p-12">
-                  <p className="ink-kicker">{selectedProject.category}</p>
+                {/* Content — tight editorial rhythm: kicker sits close under the
+                    image, description reads at body size (not display), and the
+                    meta/footer blocks step down in even ~28px beats. */}
+                <div className="px-7 pb-7 pt-6 sm:px-10 sm:pb-8 sm:pt-7">
+                  <p className="ink-kicker">
+                    {selectedProject.category} · {projectYear(selectedProject)}
+                  </p>
                   <h2
                     id="project-modal-title"
-                    className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl"
+                    className="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl"
                   >
                     {selectedProject.title}
                   </h2>
-                  <p className="mt-5 text-base leading-relaxed text-ink-muted">
-                    {selectedProject.description}
+                  <p className="mt-3 max-w-[68ch] text-[15px] leading-relaxed text-ink-muted text-pretty">
+                    {selectedProject.content || selectedProject.description}
                   </p>
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    {selectedProject.link && (
-                      <a
-                        href={selectedProject.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="ink-button gap-2"
+
+                  {/* Meta strip — hairline-ruled columns, magazine style. Stack
+                      gets the widest column so its value holds one line; Year is
+                      narrow (four digits never need a quarter of the card). */}
+                  <dl className="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-[1.1fr_1.5fr_0.6fr_1fr]">
+                    {[
+                      ["Role", projectRole(selectedProject)],
+                      ["Stack", projectStack(selectedProject)],
+                      ["Year", projectYear(selectedProject)],
+                      ["Status", projectStatus(selectedProject)],
+                    ].map(([label, value]) => (
+                      <div key={label} className="border-t border-ink-line pt-2.5">
+                        <dt className="ink-kicker">{label}</dt>
+                        <dd className="mt-1 text-sm text-ink">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+                    <div className="flex flex-wrap gap-3">
+                      {selectedProject.link && (
+                        <InkButton href={selectedProject.link} external>
+                          Visit {linkHost(selectedProject.link)}
+                        </InkButton>
+                      )}
+                      {selectedProject.github && (
+                        <a
+                          href={selectedProject.github}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="press ink-link-arrow inline-flex items-center gap-2 rounded-full border border-ink-line px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-soft"
+                        >
+                          Source <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                    </div>
+                    {nextProject && (
+                      <button
+                        type="button"
+                        onClick={() => goToProject(nextProject)}
+                        className="press ink-link-arrow text-sm text-ink-muted transition-colors duration-200 hover:text-ink"
                       >
-                        View project <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    )}
-                    {selectedProject.github && (
-                      <a
-                        href={selectedProject.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="press ink-link-arrow inline-flex items-center gap-2 rounded-full border border-ink-line px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-soft"
-                      >
-                        Source <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
+                        Next project: <span className="font-medium">{nextProject.title}</span>
+                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -332,27 +403,6 @@ export default function HomePage({
             />
             <Experience />
             <Skills bio={bio} skills={skills} updated={skillsUpdated} />
-            {/* Kinetic bridge into the dark contact zone: the marquee drifts on
-                its own and accelerates/reverses with scroll velocity. */}
-            <div
-              aria-hidden="true"
-              className="overflow-hidden border-y border-white/10 bg-[#0e0e0e] py-7 md:py-9"
-            >
-              <VelocityMarquee
-                items={
-                  skills && skills.length > 0
-                    ? skills
-                    : [
-                        "AI agents",
-                        "Workflow automation",
-                        "Next.js",
-                        "TypeScript",
-                        "Full-stack engineering",
-                      ]
-                }
-                baseVelocity={-2.5}
-              />
-            </div>
             <Contact profile={userProfile} ctaHref={ctaHref} />
           </main>
           <FooterWordmark />

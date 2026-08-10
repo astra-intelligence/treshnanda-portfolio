@@ -47,7 +47,14 @@ export default function ChapterRail() {
   const chapter = CHAPTERS.find((c) => c.id === active);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed bottom-10 right-7 z-40 hidden lg:block">
+    // mix-blend lives on the fixed wrapper: the wrapper's own stacking context
+    // would isolate a blend set on the child, leaving white-on-white invisible.
+    // On the wrapper it composites against the page, so the label inverts
+    // per-pixel across light/dark sections like the scroll progress bar.
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed bottom-10 right-7 z-40 hidden mix-blend-difference lg:block"
+    >
       <AnimatePresence mode="wait" initial={false}>
         {chapter ? (
           <motion.p
@@ -56,7 +63,7 @@ export default function ChapterRail() {
             animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
             exit={{ opacity: 0, filter: "blur(6px)", y: reduce ? 0 : -12, transition: { duration: 0.22, ease: ease.in } }}
             transition={{ duration: 0.45, ease: ease.out }}
-            className="text-[10px] font-medium uppercase tracking-[0.24em] text-white mix-blend-difference"
+            className="text-[10px] font-medium uppercase tracking-[0.24em] text-white"
             style={{ writingMode: "vertical-rl" }}
           >
             Chapter {chapter.index} / {chapter.label}

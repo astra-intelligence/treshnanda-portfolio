@@ -163,7 +163,8 @@ export default function Header({ ctaHref }: { ctaHref: string }) {
             transition={xfade}
             className="hidden flex-1 items-center justify-end overflow-hidden whitespace-nowrap md:flex"
           >
-            <div className="ml-4 flex items-center gap-1.5">
+            {/* focus-blur: the hovered link stays sharp, siblings soften. */}
+            <div className="focus-blur ml-4 flex items-center gap-1.5">
               {NAV.map((item) => (
                 <NavLink
                   key={item.href}
@@ -290,7 +291,7 @@ function NavLink({
       onClick={onClick}
       aria-current={active ? "true" : undefined}
       className={cn(
-        "group relative rounded-full px-3 py-1.5 text-[13px] transition-colors duration-200",
+        "focus-blur-item group relative rounded-full px-3 py-1.5 text-[13px] transition-colors duration-200",
         ink
           ? active
             ? "text-white"

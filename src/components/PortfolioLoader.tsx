@@ -89,28 +89,116 @@ export default function PortfolioLoader({ portraitUrl, onRelease }: PortfolioLoa
           aria-label="Preparing portfolio"
         >
           {/*
-            Apple-style materialize: the wordmark arrives from a soft blur on
-            the same paper background as the hero beneath, so the exit is a
-            quiet crossfade instead of a curtain — no color cut, no theatrics.
+            Monochrome materialize on the same paper as the hero beneath, so the
+            exit stays a quiet crossfade — but with a real setpiece:
+            1. an ink ring draws itself around the portrait, leaves a small gap,
+               then orbits slowly (the ambient "still working" layer),
+            2. the portrait resolves from a blur inside it — the same portrait
+               that lands in the hero headline pill, so the loader hands off,
+            3. the wordmark rises letter by letter,
+            4. a shimmer hairline sweeps underneath while we wait.
           */}
-          <div className="flex flex-col items-center gap-6">
-            <motion.p
-              initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98, filter: "blur(10px)" }}
-              animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{ duration: reduce ? 0.15 : 0.55, ease: ease.out }}
-              className="text-[17px] font-semibold tracking-[-0.02em] text-ink"
-            >
-              Treshnanda
-            </motion.p>
-            <div className="h-px w-12 overflow-hidden bg-ink/10">
+          <motion.div
+            className="flex flex-col items-center gap-7"
+            exit={
+              reduce
+                ? { opacity: 0, transition: { duration: 0.2 } }
+                : {
+                    opacity: 0,
+                    scale: 0.94,
+                    filter: "blur(6px)",
+                    transition: { duration: 0.4, ease: ease.in },
+                  }
+            }
+          >
+            <div className="relative h-[88px] w-[88px]">
+              <motion.svg
+                viewBox="0 0 88 88"
+                className="absolute inset-0 h-full w-full text-ink"
+                initial={{ rotate: -90 }}
+                animate={reduce ? { rotate: -90 } : { rotate: 270 }}
+                transition={
+                  reduce
+                    ? undefined
+                    : { duration: 10, repeat: Infinity, ease: "linear" }
+                }
+              >
+                <motion.circle
+                  cx="44"
+                  cy="44"
+                  r="42.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 0.92 }}
+                  transition={{ duration: reduce ? 0.15 : 0.9, ease: ease.out }}
+                />
+              </motion.svg>
               <motion.div
-                className="h-full origin-left bg-ink"
-                initial={{ transform: "scaleX(0)" }}
-                animate={{ transform: "scaleX(1)" }}
-                transition={{ duration: reduce ? 0.15 : 1.0, ease: ease.out }}
-              />
+                className="absolute inset-[7px] overflow-hidden rounded-full"
+                initial={
+                  reduce
+                    ? { opacity: 0 }
+                    : { opacity: 0, scale: 0.85, filter: "blur(10px)" }
+                }
+                animate={
+                  reduce
+                    ? { opacity: 1 }
+                    : { opacity: 1, scale: 1, filter: "blur(0px)" }
+                }
+                transition={{ duration: reduce ? 0.15 : 0.7, delay: 0.1, ease: ease.out }}
+              >
+                {portraitUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={portraitUrl}
+                    alt=""
+                    className="h-full w-full object-cover object-[58%_42%]"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-paper-soft" />
+                )}
+              </motion.div>
             </div>
-          </div>
+
+            <p
+              aria-hidden="true"
+              className="flex overflow-hidden pb-[0.08em] text-[17px] font-semibold tracking-[-0.02em] text-ink"
+            >
+              {"Treshnanda".split("").map((letter, i) => (
+                <motion.span
+                  key={i}
+                  className="inline-block"
+                  initial={
+                    reduce
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: "105%", filter: "blur(6px)" }
+                  }
+                  animate={
+                    reduce
+                      ? { opacity: 1 }
+                      : { opacity: 1, y: 0, filter: "blur(0px)" }
+                  }
+                  transition={{
+                    duration: reduce ? 0.15 : 0.6,
+                    delay: reduce ? 0 : 0.3 + i * 0.035,
+                    ease: ease.out,
+                  }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: reduce ? 0 : 0.7 }}
+              className="shimmer-line h-px w-12"
+            />
+          </motion.div>
         </motion.div>
       ) : null}
     </AnimatePresence>
