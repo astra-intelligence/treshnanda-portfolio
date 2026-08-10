@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowUpRight, Check, Copy } from "lucide-react";
 import Magnetic from "@/components/Magnetic";
 import InkButton from "@/components/site/InkButton";
 import { ease } from "@/lib/motion";
@@ -16,6 +17,20 @@ export default function Contact({
 }) {
   const reduce = useReducedMotion();
   const email = profile?.contactEmail || "treshnanda@gmail.com";
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef(0);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+    } catch {
+      return;
+    }
+    setCopied(true);
+    window.clearTimeout(copyTimer.current);
+    copyTimer.current = window.setTimeout(() => setCopied(false), 1600);
+  };
+
   const socials = [
     { label: "GitHub", href: profile?.socials?.github },
     { label: "LinkedIn", href: profile?.socials?.linkedin },
@@ -72,15 +87,43 @@ export default function Contact({
               Start a project
             </InkButton>
           </Magnetic>
-          <a
-            href={`mailto:${email}`}
-            className="group ink-link-arrow text-sm font-medium text-white"
-          >
-            <span className="link-underline group-hover:[background-size:100%_1px]">
-              {email}
+          <span className="flex items-center gap-3">
+            <a
+              href={`mailto:${email}`}
+              className="group press ink-link-arrow text-sm font-medium text-white"
+            >
+              <span className="link-underline group-hover:[background-size:100%_1px]">
+                {email}
+              </span>
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+            <button
+              type="button"
+              onClick={copyEmail}
+              aria-label={copied ? "Email address copied" : "Copy email address"}
+              className="press flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors duration-200 hover:border-white/45 hover:text-white"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={copied ? "check" : "copy"}
+                  initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+                  transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+                  className="flex"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-white" aria-hidden="true" />
+                  ) : (
+                    <Copy className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </button>
+            <span aria-live="polite" className="sr-only">
+              {copied ? "Email address copied to clipboard" : ""}
             </span>
-            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
+          </span>
         </motion.div>
 
         <motion.div
@@ -96,7 +139,7 @@ export default function Contact({
               href={s.href}
               target="_blank"
               rel="noreferrer"
-              className="ink-link-arrow text-sm text-white/50 transition-colors duration-200 hover:text-white"
+              className="press ink-link-arrow text-sm text-white/50 transition-colors duration-200 hover:text-white"
             >
               {s.label}
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />

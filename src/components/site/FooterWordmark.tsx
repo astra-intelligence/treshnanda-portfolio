@@ -37,7 +37,7 @@ export default function FooterWordmark() {
               <motion.span
                 className="inline-block"
                 whileHover={reduce ? undefined : { y: "-0.1em" }}
-                transition={spring.pop}
+                transition={spring.soft}
               >
                 {letter}
               </motion.span>

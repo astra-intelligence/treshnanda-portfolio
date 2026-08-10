@@ -44,3 +44,6 @@ next-env.d.ts
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# local SQLite database — prod keeps its own on the server
+/data/
+

@@ -35,7 +35,7 @@ export default function Experience() {
 
           <div className="mt-12 border-t border-ink-line pt-8">
             <p className="ink-kicker">Education</p>
-            <ul className="mt-6 space-y-6">
+            <ul className="dim-siblings mt-6 space-y-6">
               {educationEntries.map((item, i) => (
                 <motion.li
                   key={item.id}
@@ -43,8 +43,11 @@ export default function Experience() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.45, delay: i * 0.06, ease: ease.out }}
+                  className="group"
                 >
-                  <p className="text-[15px] font-semibold text-ink">{item.program}</p>
+                  <p className="text-[15px] font-semibold text-ink transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:translate-x-1">
+                    {item.program}
+                  </p>
                   <p className="mt-1 text-sm text-ink-muted">
                     {item.school} · {item.start}
                     {item.end !== item.start ? `–${item.end}` : ""} · {item.note}

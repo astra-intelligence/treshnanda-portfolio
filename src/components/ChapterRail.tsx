@@ -9,7 +9,8 @@ import { ease } from "@/lib/motion";
 const CHAPTERS = [
   { id: "work", index: "01", label: "Work" },
   { id: "experience", index: "02", label: "Experience" },
-  { id: "about", index: "03", label: "Contact" },
+  { id: "about", index: "03", label: "About" },
+  { id: "contact", index: "04", label: "Contact" },
 ];
 
 /**
@@ -55,7 +56,7 @@ export default function ChapterRail() {
             animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
             exit={{ opacity: 0, filter: "blur(6px)", y: reduce ? 0 : -12, transition: { duration: 0.22, ease: ease.in } }}
             transition={{ duration: 0.45, ease: ease.out }}
-            className="editorial-meta"
+            className="text-[10px] font-medium uppercase tracking-[0.24em] text-white mix-blend-difference"
             style={{ writingMode: "vertical-rl" }}
           >
             Chapter {chapter.index} / {chapter.label}

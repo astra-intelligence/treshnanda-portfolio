@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type MotionProps } from "framer-motion";
 import Magnetic from "@/components/Magnetic";
 import InkButton from "@/components/site/InkButton";
 import HeroImage from "@/components/site/HeroImage";
@@ -11,9 +11,12 @@ import type { PortfolioProfile } from "@/lib/portfolio-types";
 export default function Hero({
   profile,
   ctaHref,
+  start = true,
 }: {
   profile?: PortfolioProfile;
   ctaHref: string;
+  /** Holds the entrance while the intro loader covers the page. */
+  start?: boolean;
 }) {
   const reduce = useReducedMotion();
   const avatar = "/avatar.jpg";
@@ -21,18 +24,17 @@ export default function Hero({
     profile?.heroSubheadline ||
     "I'm Nanda, an AI systems and automation engineer in Bali. I design and ship agents, automations, and web systems that take repetitive work off your plate.";
 
-  const fade = (delay = 0) =>
-    reduce
-      ? {
-          initial: { opacity: 0 },
-          animate: { opacity: 1 },
-          transition: { duration: 0.35, delay },
-        }
-      : {
-          initial: { opacity: 0, y: 16 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.65, delay, ease: ease.out },
-        };
+  const fade = (delay = 0): Pick<MotionProps, "initial" | "animate" | "transition"> => {
+    const initial = reduce ? { opacity: 0 } : { opacity: 0, y: 16 };
+    const animate = reduce ? { opacity: 1 } : { opacity: 1, y: 0 };
+    return {
+      initial,
+      animate: start ? animate : initial,
+      transition: reduce
+        ? { duration: 0.35, delay }
+        : { duration: 0.65, delay, ease: ease.out },
+    };
+  };
 
   return (
     <section className="relative overflow-hidden pb-10 pt-24 md:pb-10 md:pt-24">
@@ -47,7 +49,7 @@ export default function Hero({
         <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-14">
         <motion.h1
           initial="hidden"
-          animate="visible"
+          animate={start ? "visible" : "hidden"}
           className="ink-hero flex flex-col items-start"
         >
           <span className="flex flex-wrap items-baseline gap-x-[0.24em] overflow-hidden pb-[0.04em]">
@@ -112,7 +114,7 @@ export default function Hero({
             </Magnetic>
             <a
               href="#work"
-              className="ink-link-arrow text-[14px] font-medium text-ink transition-opacity duration-200 hover:opacity-60"
+              className="press ink-link-arrow text-[14px] font-medium text-ink transition-opacity duration-200 hover:opacity-60"
             >
               See selected work
               <span aria-hidden="true" className="arrow-glyph ml-1 inline-block">
@@ -136,13 +138,21 @@ export default function Hero({
                 }
           }
           animate={
-            reduce
-              ? { opacity: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  clipPath: "inset(0% 0% 0% 0% round 1.75rem)",
-                }
+            !start
+              ? reduce
+                ? { opacity: 0 }
+                : {
+                    opacity: 0,
+                    scale: 1.015,
+                    clipPath: "inset(10% 5% 10% 5% round 1.75rem)",
+                  }
+              : reduce
+                ? { opacity: 1 }
+                : {
+                    opacity: 1,
+                    scale: 1,
+                    clipPath: "inset(0% 0% 0% 0% round 1.75rem)",
+                  }
           }
           transition={
             reduce

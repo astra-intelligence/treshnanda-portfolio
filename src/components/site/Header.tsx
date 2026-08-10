@@ -144,7 +144,7 @@ export default function Header({ ctaHref }: { ctaHref: string }) {
             href="/"
             onClick={settle}
             className={cn(
-              "shrink-0 whitespace-nowrap text-[15px] font-semibold tracking-tight transition-colors duration-300 hover:opacity-70",
+              "press shrink-0 whitespace-nowrap text-[15px] font-semibold tracking-tight transition-colors duration-300 hover:opacity-70",
               ink ? "text-white" : "text-ink",
             )}
           >
@@ -247,7 +247,7 @@ export default function Header({ ctaHref }: { ctaHref: string }) {
                 <Link
                   href={item.href}
                   onClick={settle}
-                  className="block rounded-2xl px-4 py-3.5 text-2xl font-semibold tracking-tight text-ink"
+                  className="press block rounded-2xl px-4 py-3.5 text-2xl font-semibold tracking-tight text-ink transition-colors duration-200 hover:bg-paper-soft"
                 >
                   {item.label}
                 </Link>

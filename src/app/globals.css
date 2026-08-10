@@ -10,6 +10,8 @@
   --color-ink-line: #e6e6e6;
   --color-paper: #ffffff;
   --color-paper-soft: #f7f7f7;
+  --color-system-lime: #ccff00;
+  --color-system-lime-dark: #4f6500;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);

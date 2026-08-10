@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ChevronRight, ExternalLink, Layout, X } from "lucide-react";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -11,6 +11,10 @@ import Experience from "@/components/site/Experience";
 import Skills from "@/components/site/Skills";
 import Contact from "@/components/site/Contact";
 import FooterWordmark from "@/components/site/FooterWordmark";
+import ScrollProgress from "@/components/site/ScrollProgress";
+import PortfolioLoader from "@/components/PortfolioLoader";
+import ChapterRail from "@/components/ChapterRail";
+import VelocityMarquee from "@/components/VelocityMarquee";
 import { ease, spring } from "@/lib/motion";
 import type { PortfolioProfile, PortfolioProject } from "@/lib/portfolio-types";
 
@@ -34,6 +38,32 @@ export default function HomePage({
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lastFocusedElement = useRef<HTMLElement | null>(null);
+
+  // Intro loader: plays once per session (first impression), never under
+  // reduced motion. sessionStorage is read through useSyncExternalStore so
+  // SSR renders "seen" (no loader markup) and hydration corrects it.
+  const introSeen = useSyncExternalStore(
+    () => () => {},
+    () => {
+      try {
+        return Boolean(sessionStorage.getItem("tn-intro"));
+      } catch {
+        return true;
+      }
+    },
+    () => true,
+  );
+  const showLoader = !reduce && !introSeen;
+  const [released, setReleased] = useState(false);
+
+  const handleLoaderRelease = useCallback(() => {
+    try {
+      sessionStorage.setItem("tn-intro", "1");
+    } catch {
+      /* private mode */
+    }
+    setReleased(true);
+  }, []);
 
   const ctaHref =
     userProfile?.socials?.whatsapp ||
@@ -153,9 +183,15 @@ export default function HomePage({
   return (
     <SmoothScroll>
       <div className="min-h-screen bg-paper text-ink">
+        {/* Stays mounted after release so its AnimatePresence exit can finish. */}
+        {showLoader && (
+          <PortfolioLoader portraitUrl="/avatar.jpg" onRelease={handleLoaderRelease} />
+        )}
+        <ScrollProgress />
+        <ChapterRail />
         <a
           href="#work"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[400] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+          className="press sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[400] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-white"
         >
           Skip to selected work
         </a>
@@ -183,6 +219,7 @@ export default function HomePage({
                   ref={closeButtonRef}
                   onClick={closeProject}
                   aria-label="Close project details"
+                  whileHover={reduce ? undefined : { scale: 1.08 }}
                   whileTap={reduce ? undefined : { scale: 0.92 }}
                   transition={spring.press}
                   className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white"
@@ -213,28 +250,34 @@ export default function HomePage({
 
                   {allImages.length > 1 && (
                     <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-20 flex items-center justify-between px-4">
-                      <button
+                      <motion.button
                         type="button"
                         aria-label="Previous project image"
                         onClick={(e) => {
                           e.stopPropagation();
                           paginate(-1);
                         }}
-                        className="press pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow"
+                        whileHover={reduce ? undefined : { scale: 1.1 }}
+                        whileTap={reduce ? undefined : { scale: 0.9 }}
+                        transition={spring.press}
+                        className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow"
                       >
                         <ChevronRight className="h-4 w-4 rotate-180" />
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
                         type="button"
                         aria-label="Next project image"
                         onClick={(e) => {
                           e.stopPropagation();
                           paginate(1);
                         }}
-                        className="press pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow"
+                        whileHover={reduce ? undefined : { scale: 1.1 }}
+                        whileTap={reduce ? undefined : { scale: 0.9 }}
+                        transition={spring.press}
+                        className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow"
                       >
                         <ChevronRight className="h-4 w-4" />
-                      </button>
+                      </motion.button>
                     </div>
                   )}
                 </div>
@@ -266,7 +309,7 @@ export default function HomePage({
                         href={selectedProject.github}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full border border-ink-line px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-soft"
+                        className="press ink-link-arrow inline-flex items-center gap-2 rounded-full border border-ink-line px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-soft"
                       >
                         Source <ExternalLink className="h-3.5 w-3.5" />
                       </a>
@@ -281,7 +324,7 @@ export default function HomePage({
         <div data-page-content>
           <Header ctaHref={ctaHref} />
           <main>
-            <Hero profile={userProfile} ctaHref={ctaHref} />
+            <Hero profile={userProfile} ctaHref={ctaHref} start={!showLoader || released} />
             <ProjectGrid
               projects={initialProjects}
               onOpen={openProject}
@@ -289,6 +332,27 @@ export default function HomePage({
             />
             <Experience />
             <Skills bio={bio} skills={skills} updated={skillsUpdated} />
+            {/* Kinetic bridge into the dark contact zone: the marquee drifts on
+                its own and accelerates/reverses with scroll velocity. */}
+            <div
+              aria-hidden="true"
+              className="overflow-hidden border-y border-white/10 bg-[#0e0e0e] py-7 md:py-9"
+            >
+              <VelocityMarquee
+                items={
+                  skills && skills.length > 0
+                    ? skills
+                    : [
+                        "AI agents",
+                        "Workflow automation",
+                        "Next.js",
+                        "TypeScript",
+                        "Full-stack engineering",
+                      ]
+                }
+                baseVelocity={-2.5}
+              />
+            </div>
             <Contact profile={userProfile} ctaHref={ctaHref} />
           </main>
           <FooterWordmark />

@@ -16,8 +16,8 @@ import {
 /**
  * Scroll-velocity marquee. Items drift at a constant base speed, but the
  * scroll velocity feeds back into the motion: scroll down → faster, scroll up
- * → it reverses direction. The whole strip skews slightly with velocity for a
- * physical, "weighted" feel.
+ * → it reverses direction. Strictly monochrome; motion stays calm (no skew)
+ * to match the ink/paper direction.
  *
  * Under reduced motion it collapses to a static, evenly-spaced row.
  */
@@ -41,11 +41,6 @@ export default function VelocityMarquee({
     clamp: false,
   });
 
-  // skew with velocity — capped so it never tips into gimmick territory.
-  const skew = useTransform(smoothVelocity, [-2000, 0, 2000], [-4, 0, 4], {
-    clamp: true,
-  });
-
   // -25% keeps two of the four repeated rows always covering the viewport.
   const x = useTransform(baseX, (v) => `${wrap(-25, -50, v)}%`);
 
@@ -66,10 +61,10 @@ export default function VelocityMarquee({
     >
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-10 md:gap-16">
-          <span className="inline-block text-2xl md:text-5xl font-black tracking-tighter uppercase text-white/30 transition-[color,transform] duration-300 hover:text-system-lime hover:-translate-y-1 hover:scale-105">
+          <span className="inline-block text-2xl md:text-5xl font-semibold tracking-[-0.03em] uppercase text-white/25 transition-colors duration-300 hover:text-white/70">
             {item}
           </span>
-          <span className="text-system-lime text-lg md:text-2xl">✦</span>
+          <span aria-hidden="true" className="text-white/15 text-lg md:text-2xl">·</span>
         </span>
       ))}
     </div>
@@ -81,7 +76,7 @@ export default function VelocityMarquee({
         {items.map((item) => (
           <span
             key={item}
-            className="text-lg md:text-2xl font-black tracking-tighter uppercase text-white/30"
+            className="text-lg md:text-2xl font-semibold tracking-[-0.03em] uppercase text-white/25"
           >
             {item}
           </span>
@@ -92,7 +87,7 @@ export default function VelocityMarquee({
 
   return (
     <div className="relative flex w-full flex-nowrap overflow-hidden">
-      <motion.div className="flex flex-nowrap" style={{ x, skewX: skew }}>
+      <motion.div className="flex flex-nowrap" style={{ x }}>
         <Row />
         <Row ariaHidden />
         <Row ariaHidden />
