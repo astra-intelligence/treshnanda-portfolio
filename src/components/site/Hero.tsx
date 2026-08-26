@@ -91,8 +91,8 @@ export default function Hero({
               src="/hero-grain.webp"
               alt=""
               fill
-              quality={75}
-              sizes="(max-width: 768px) 100vw, 1392px"
+              unoptimized
+              fetchPriority="low"
               className="object-cover"
             />
           </div>

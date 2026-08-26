@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
   motion,
@@ -13,6 +14,10 @@ import {
  * Hero media — Figma fabric at the artboard's 1392×820 ratio, with a slow
  * ken-burns on a nested layer. Grain is a separate sibling. Reduced motion:
  * still photograph.
+ *
+ * Served unoptimized: the file in /public is already a compressed WebP.
+ * Running it through /_next/image builds a srcset ladder, so the browser
+ * paints a tiny stretched frame first, then swaps in the real one.
  */
 export default function HeroImage({
   src,
@@ -22,10 +27,11 @@ export default function HeroImage({
   active?: boolean;
 }) {
   const reduce = useReducedMotion();
+  const [ready, setReady] = useState(false);
   const { scrollY } = useScroll();
   const yRaw = useTransform(scrollY, [0, 900], reduce ? [0, 0] : [0, 36]);
   const y = useSpring(yRaw, { stiffness: 140, damping: 32, mass: 0.85 });
-  const drift = active && !reduce;
+  const drift = active && !reduce && ready;
 
   return (
     <motion.div
@@ -54,9 +60,10 @@ export default function HeroImage({
           src={src}
           alt=""
           fill
-          preload
-          quality={90}
-          sizes="(max-width: 768px) 100vw, 1392px"
+          unoptimized
+          fetchPriority="high"
+          decoding="async"
+          onLoad={() => setReady(true)}
           className="object-cover"
         />
       </motion.div>

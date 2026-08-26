@@ -22,6 +22,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/hero.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
+      </head>
       <body className={cn(inter.variable, "font-sans antialiased")}>{children}</body>
     </html>
   );
