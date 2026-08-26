@@ -96,7 +96,7 @@ export default function Header({ ctaHref }: { ctaHref: string }) {
   const ink = scrolled; // dark island -> white content; top -> ink content
 
   const barMax = reduced || !scrolled ? 1600 : island ? (expanded ? 660 : 208) : 1600;
-  const barHeight = scrolled ? 48 : 68;
+  const barHeight = scrolled ? 48 : 56;
 
   // The bar<->island morph is the page's biggest chrome change: slower, drawer
   // ease. Hover expand/collapse is frequent: snappy.
@@ -122,7 +122,7 @@ export default function Header({ ctaHref }: { ctaHref: string }) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="px-3 pt-3 md:px-6 md:pt-4">
+      <div className="px-3 pt-2 md:px-6 md:pt-2">
         <motion.div
           transition={morph}
           onMouseEnter={() => canHoverExpand() && setHovered(true)}

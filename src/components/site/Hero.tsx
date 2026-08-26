@@ -2,11 +2,21 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion, type MotionProps } from "framer-motion";
+import { ArrowDown } from "lucide-react";
 import Magnetic from "@/components/Magnetic";
 import InkButton from "@/components/site/InkButton";
 import HeroImage from "@/components/site/HeroImage";
 import { ease } from "@/lib/motion";
 import type { PortfolioProfile } from "@/lib/portfolio-types";
+
+const DESIGN_BIO =
+  "I’m Nanda, an AI systems engineer in Bali. I design and ship agents, automations, and systems that take repetitive work off your plate.";
+
+const LEGACY_HEADLINE = "Work that does itself.";
+const LEGACY_BIO =
+  "I'm Nanda, an AI systems and automation engineer in Bali. I design and ship agents, automations, and web systems that take repetitive work off your plate.";
+
+const CLAIM_WORDS = ["I", "build", "AI", "systems."] as const;
 
 export default function Hero({
   profile,
@@ -20,172 +30,174 @@ export default function Hero({
 }) {
   const reduce = useReducedMotion();
   const avatar = "/avatar.jpg";
+  const name = profile?.name || "Treshnanda";
+  const claim =
+    profile?.heroHeadline && profile.heroHeadline !== LEGACY_HEADLINE
+      ? profile.heroHeadline
+      : "I build AI systems.";
   const sub =
-    profile?.heroSubheadline ||
-    "I'm Nanda, an AI systems and automation engineer in Bali. I design and ship agents, automations, and web systems that take repetitive work off your plate.";
+    !profile?.heroSubheadline || profile.heroSubheadline === LEGACY_BIO
+      ? DESIGN_BIO
+      : profile.heroSubheadline;
+
+  const claimWords = claim === "I build AI systems." ? [...CLAIM_WORDS] : claim.split(" ");
 
   const fade = (delay = 0): Pick<MotionProps, "initial" | "animate" | "transition"> => {
-    const initial = reduce ? { opacity: 0 } : { opacity: 0, y: 16 };
-    const animate = reduce ? { opacity: 1 } : { opacity: 1, y: 0 };
+    const initial = reduce ? { opacity: 0 } : { opacity: 0, y: 14, filter: "blur(8px)" };
+    const animate = reduce ? { opacity: 1 } : { opacity: 1, y: 0, filter: "blur(0px)" };
     return {
       initial,
       animate: start ? animate : initial,
       transition: reduce
-        ? { duration: 0.35, delay }
-        : { duration: 0.65, delay, ease: ease.out },
+        ? { duration: 0.3, delay }
+        : { duration: 0.7, delay, ease: ease.out },
     };
   };
 
+  const cardHidden = reduce
+    ? { opacity: 0 }
+    : {
+        opacity: 0,
+        scale: 0.985,
+        clipPath: "inset(8% 4% 10% 4% round 2.5rem)",
+      };
+  const cardShown = reduce
+    ? { opacity: 1 }
+    : {
+        opacity: 1,
+        scale: 1,
+        clipPath: "inset(0% 0% 0% 0% round 2.5rem)",
+      };
+
   return (
-    <section className="relative overflow-hidden pb-10 pt-24 md:pb-10 md:pt-24">
-      <div className="site-shell">
-        {/*
-          Headline — left-aligned at the margin, two forced lines:
-            Work that
-            [pill] does itself.
-          Kinetic reveal: each word rises + un-blurs in sequence (the one hero
-          setpiece, plays once). Avatar pill scales in with the second line.
-        */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-stretch md:gap-14">
-        <motion.h1
-          initial="hidden"
-          animate={start ? "visible" : "hidden"}
-          className="ink-hero flex flex-col items-start"
-        >
-          <span className="flex flex-wrap items-baseline gap-x-[0.24em] overflow-hidden pb-[0.04em]">
-            {["Work", "that"].map((word, i) => (
-              <HeroWord key={word} word={word} index={i} reduce={!!reduce} />
-            ))}
-          </span>
-          <span className="mt-[0.04em] flex items-center gap-[0.2em]">
-            <motion.span
-              variants={
-                reduce
-                  ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
-                  : {
-                      hidden: { opacity: 0, scale: 0.86, filter: "blur(8px)" },
-                      visible: {
-                        opacity: 1,
-                        scale: 1,
-                        filter: "blur(0px)",
-                        transition: { duration: 0.7, delay: 0.3, ease: ease.out },
-                      },
-                    }
-              }
-              whileHover={reduce ? undefined : { width: "1.85em" }}
-              transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              className="relative inline-block h-[0.78em] w-[1.25em] shrink-0 overflow-hidden rounded-full"
-              style={{ outline: "1px solid oklch(0 0 0 / 0.08)" }}
-            >
-              <Image
-                src={avatar}
-                alt="Treshnanda"
-                fill
-                sizes="240px"
-                className="object-cover object-[58%_42%]"
-                priority
-              />
-            </motion.span>
-            <HeroWord word="does" index={2} reduce={!!reduce} />
-            <HeroWord word="itself." index={3} reduce={!!reduce} />
-          </span>
-        </motion.h1>
-
-        {/* Bio + CTAs — right column stretches to the headline's full height:
-            bio cap-aligned with the headline's cap at the top, CTAs sitting on
-            the headline's last baseline at the bottom, so the two columns read
-            as one balanced block instead of the right side floating high. */}
-        <div className="mt-2 flex flex-col gap-7 md:mt-0 md:max-w-[26rem] md:justify-between md:self-stretch md:pb-[0.4rem] md:pt-3">
-          <motion.p
-            {...fade(0.5)}
-            className="max-w-[29rem] text-[16px] leading-[1.5] text-[#6e6e6e] text-pretty md:text-[17px]"
-          >
-            {sub}
-          </motion.p>
-
-          <motion.div
-            {...fade(0.58)}
-            className="flex flex-wrap items-center gap-6"
-          >
-            <Magnetic strength={0.28}>
-              <InkButton href={ctaHref} external className="!px-7 !py-[0.85rem] !text-[14px]">
-                Start a project
-              </InkButton>
-            </Magnetic>
-            <a
-              href="#work"
-              className="press ink-link-arrow text-[14px] font-medium text-ink transition-opacity duration-200 hover:opacity-60"
-            >
-              See selected work
-              <span aria-hidden="true" className="arrow-glyph ml-1 inline-block">
-                ↓
-              </span>
-            </a>
-          </motion.div>
-        </div>
-        </div>
-
-        {/* Hero media reveal — the frame irises open from a slightly inset crop
-            instead of fading in: the image reads as a surface arriving. */}
+    <section
+      aria-labelledby="hero-title"
+      className="box-border flex h-svh flex-col pb-3 pt-16"
+    >
+      <div className="hero-shell flex min-h-0 flex-1 flex-col justify-end md:justify-center">
         <motion.div
-          initial={
-            reduce
-              ? { opacity: 0 }
-              : {
-                  opacity: 0,
-                  scale: 1.015,
-                  clipPath: "inset(10% 5% 10% 5% round 1.75rem)",
-                }
-          }
-          animate={
-            !start
-              ? reduce
-                ? { opacity: 0 }
-                : {
-                    opacity: 0,
-                    scale: 1.015,
-                    clipPath: "inset(10% 5% 10% 5% round 1.75rem)",
-                  }
-              : reduce
-                ? { opacity: 1 }
-                : {
-                    opacity: 1,
-                    scale: 1,
-                    clipPath: "inset(0% 0% 0% 0% round 1.75rem)",
-                  }
-          }
+          initial={cardHidden}
+          animate={start ? cardShown : cardHidden}
           transition={
             reduce
-              ? { duration: 0.35, delay: 0.4 }
-              : { duration: 1.05, delay: 0.55, ease: ease.drawer }
+              ? { duration: 0.35 }
+              : { duration: 1.05, ease: ease.drawer }
           }
-          className="mt-8 md:mt-6"
+          className="hero-card"
         >
-          <HeroImage src="/hero.png" />
-        </motion.div>
+          <HeroImage src="/hero.webp" active={start} />
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <Image
+              src="/hero-grain.webp"
+              alt=""
+              fill
+              quality={75}
+              sizes="(max-width: 768px) 100vw, 1392px"
+              className="object-cover"
+            />
+          </div>
+          <div className="hero-scrim" aria-hidden="true" />
 
-        <motion.div
-          {...fade(0.74)}
-          className="mt-5 flex items-center justify-between gap-4 ink-kicker md:mt-5"
-        >
-          <span className="truncate">
-            AI agents · Workflow automation · Full-stack engineering
-          </span>
-          <span className="flex shrink-0 items-center gap-1.5">
-            Scroll
-            <motion.span
-              aria-hidden="true"
-              animate={reduce ? undefined : { y: [0, 3, 0] }}
-              transition={
-                reduce
-                  ? undefined
-                  : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
-              }
-              className="inline-block"
-            >
-              ↓
-            </motion.span>
-          </span>
+          {/*
+            Figma: content is a bottom block (left 56, top 390 on a 1392×820
+            artboard) — not vertically centered. justify-end + the 56px inset
+            recreates that.
+          */}
+          <div className="relative z-10 flex h-full flex-col justify-end p-[var(--hero-pad)]">
+            <div className="flex w-full flex-col gap-[clamp(1.25rem,2.874cqw,2.5rem)]">
+              <motion.h1
+                id="hero-title"
+                initial="hidden"
+                animate={start ? "visible" : "hidden"}
+                className="hero-type flex flex-col items-start gap-[clamp(0.5rem,0.862cqw,0.75rem)]"
+              >
+                <span className="flex items-center gap-[clamp(0.85rem,1.724cqw,1.5rem)]">
+                  <motion.span
+                    variants={
+                      reduce
+                        ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+                        : {
+                            hidden: { opacity: 0, scale: 0.92, filter: "blur(8px)" },
+                            visible: {
+                              opacity: 1,
+                              scale: 1,
+                              filter: "blur(0px)",
+                              transition: { duration: 0.7, delay: 0.28, ease: ease.out },
+                            },
+                          }
+                    }
+                    className="hero-avatar relative"
+                  >
+                    <Image
+                      src={avatar}
+                      alt=""
+                      fill
+                      sizes="141px"
+                      loading="eager"
+                      className="object-cover object-[58%_36%]"
+                    />
+                  </motion.span>
+                  <span className="whitespace-nowrap">
+                    <HeroWord word={name} index={0} reduce={!!reduce} delay={0.32} />
+                  </span>
+                </span>
+                <span className="hero-claim flex flex-wrap items-baseline gap-x-[0.22em] sm:flex-nowrap sm:whitespace-nowrap">
+                  {claimWords.map((word, i) => (
+                    <HeroWord
+                      key={`${word}-${i}`}
+                      word={word}
+                      index={i}
+                      reduce={!!reduce}
+                      delay={0.48}
+                    />
+                  ))}
+                </span>
+              </motion.h1>
+
+              <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-[clamp(1.5rem,3.448cqw,3rem)]">
+                <motion.p
+                  {...fade(0.64)}
+                  className="w-full max-w-[420px] text-[clamp(0.9375rem,1.221cqw,1.0625rem)] leading-[1.53] text-[#FFFFFFD6] text-pretty"
+                >
+                  {sub}
+                </motion.p>
+
+                <motion.div
+                  {...fade(0.74)}
+                  className="flex flex-wrap items-center gap-5"
+                >
+                  <Magnetic strength={0.22}>
+                    <InkButton
+                      href={ctaHref}
+                      external
+                      variant="inverse"
+                      className="!px-8 !py-[18px] !text-[15px] !font-semibold !leading-none !text-[#1D1D1F] focus-visible:outline-white"
+                    >
+                      Start a project
+                    </InkButton>
+                  </Magnetic>
+                  <a
+                    href="#work"
+                    className="group press inline-flex min-h-11 items-center gap-1.5 px-2 py-[18px] text-[15px] font-medium leading-none text-white transition-opacity duration-200 hover:opacity-70 focus-visible:rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
+                  >
+                    See selected work
+                    <motion.span
+                      aria-hidden="true"
+                      animate={reduce ? undefined : { y: [0, 3, 0] }}
+                      transition={
+                        reduce
+                          ? undefined
+                          : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
+                      }
+                      className="inline-flex"
+                    >
+                      <ArrowDown className="size-4 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:translate-y-[3px]" />
+                    </motion.span>
+                  </a>
+                </motion.div>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
@@ -197,27 +209,29 @@ function HeroWord({
   word,
   index,
   reduce,
+  delay = 0.05,
 }: {
   word: string;
   index: number;
   reduce: boolean;
+  delay?: number;
 }) {
   return (
-    <span className="inline-block overflow-hidden pb-[0.06em] align-baseline">
+    <span className="inline-block overflow-hidden pb-[0.04em] align-baseline">
       <motion.span
         className="inline-block"
         variants={
           reduce
             ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
             : {
-                hidden: { y: "110%", opacity: 0, filter: "blur(10px)" },
+                hidden: { y: "108%", opacity: 0, filter: "blur(10px)" },
                 visible: {
                   y: 0,
                   opacity: 1,
                   filter: "blur(0px)",
                   transition: {
-                    duration: 0.85,
-                    delay: 0.05 + index * 0.09,
+                    duration: 0.75,
+                    delay: delay + index * 0.08,
                     ease: ease.out,
                   },
                 },

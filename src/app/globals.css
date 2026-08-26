@@ -83,6 +83,103 @@
     color: var(--color-ink);
   }
 
+  /* Figma 1392×820, but never taller than the viewport under the header. */
+  .hero-shell {
+    width: 100%;
+    max-width: 1392px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 48rem) {
+    .hero-shell {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  .hero-card {
+    --hero-pad: clamp(1.25rem, 4.023cqw, 3.5rem);
+    container-type: inline-size;
+    container-name: hero;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: calc(100svh - 4.75rem);
+    max-height: min(100%, calc(100cqi * 820 / 1392));
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 2rem;
+    background: #111;
+    outline: 1px solid oklch(0 0 0 / 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .hero-card {
+      border-radius: 2.5rem;
+    }
+  }
+
+  .hero-type {
+    font-size: clamp(2.35rem, 8.621cqw, 7.5rem);
+    line-height: 1.0167;
+    font-weight: 600;
+    letter-spacing: -0.0258em;
+    color: #fff;
+    font-optical-sizing: auto;
+  }
+
+  .hero-claim {
+    color: #c2c2c2ff;
+    font-weight: 400;
+  }
+
+  .hero-avatar {
+    position: relative;
+    display: block;
+    width: clamp(5.15rem, 10.129cqw, 8.8125rem);
+    height: clamp(3.8rem, 7.471cqw, 6.5rem);
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 999px;
+    box-shadow: 0 4px 22.5px rgb(0 0 0 / 0.36);
+  }
+
+  /* Hairline sits on the photo edge so overflow:hidden cannot clip it. */
+  .hero-avatar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 clamp(1.5px, 0.216cqi, 3px) rgb(255 255 255 / 0.46);
+  }
+
+  /* Exact Figma scrim — clear in the middle, heavy at the bottom. */
+  .hero-scrim {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      180deg,
+      #00000059 0%,
+      #0000001a 18%,
+      #00000000 38%,
+      #00000066 64%,
+      #000000d4 84%,
+      #000000f2 100%
+    );
+  }
+
+  @media (prefers-contrast: more) {
+    .hero-scrim {
+      background: rgba(0, 0, 0, 0.72);
+    }
+  }
+
   .ink-button {
     @apply relative inline-flex items-center justify-center overflow-hidden rounded-full bg-ink px-7 py-[0.85rem] text-[14px] font-medium text-white;
     transition:
@@ -120,10 +217,35 @@
   }
 
   .ink-button-inverse {
-    @apply inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-medium text-ink;
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-6 py-3 text-sm font-medium text-ink;
     transition:
       transform 160ms var(--ease-out-quint),
-      background-color 200ms var(--ease-out-quint);
+      background-color 200ms var(--ease-out-quint),
+      color 200ms var(--ease-out-quint);
+  }
+
+  .ink-button-inverse::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(0, 0, 0, 0.08) 50%,
+      transparent 60%
+    );
+    transform: translateX(-150%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-button-inverse:hover::before {
+      transform: translateX(150%);
+      transition: transform 700ms var(--ease-out-quint);
+    }
+    .hero-card .ink-button-inverse:hover {
+      background-color: #f5f5f7;
+    }
   }
 
   .ink-button-inverse:active {

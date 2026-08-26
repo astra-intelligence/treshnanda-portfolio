@@ -7,9 +7,9 @@ const profileSeed = {
   role: "AI systems & automation engineer",
   bio: "CS grad, 3.97 GPA. I architect logic that scales with zero friction: systems that take repetitive work off people's plates and run it reliably, end to end.",
   avatarUrl: "/portrait.jpg",
-  heroHeadline: "Work that does itself.",
+  heroHeadline: "I build AI systems.",
   heroSubheadline:
-    "I'm Nanda, an AI systems and automation engineer in Bali. I design and ship agents, automations, and web systems that take repetitive work off your plate.",
+    "I'm Nanda, an AI systems engineer in Bali. I design and ship agents, automations, and systems that take repetitive work off your plate.",
   contactEmail: "treshnanda@gmail.com",
   location: "Bali, Indonesia",
   socials: {
